@@ -1,0 +1,13 @@
+[package]
+name = "rustcalls"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+# https://dev.to/dandyvica/how-to-call-rust-functions-from-c-on-linux-h37
+
+[lib]
+crate-type =["cdylib"]
