@@ -1,5 +1,5 @@
 use std::ffi::{c_void, CStr};
-use std::os::raw::c_char;
+use std::os::raw::{c_char, c_ushort};
 use std::slice;
 
 // # https://dev.to/dandyvica/how-to-call-rust-functions-from-c-on-linux-h37
@@ -24,7 +24,7 @@ macro_rules! create_function {
         pub extern "C" fn $func_name(v: $ctype) {
             // The `stringify!` macro converts an `ident` into a string.
             println!(
-                "{:?}() is called, value passed = <{:?}>",
+                "{:?}() is called, value passed = <{1:?}>",
                 stringify!($func_name),
                 v
             );
@@ -34,7 +34,7 @@ macro_rules! create_function {
 
 // create simple functions where C type is exactly mapping a Rust type
 create_function!(rust_char, c_char);
-create_function!(rust_wchar, c_char);
+create_function!(rust_wchar, c_ushort);
 create_function!(rust_short, i16);
 create_function!(rust_ushort, u16);
 create_function!(rust_int, i32);
@@ -47,18 +47,16 @@ create_function!(rust_void, *mut c_void);
 
 // for NULL-terminated C strings, it's a little bit clumsier
 #[no_mangle]
-pub extern "C"
-fn rust_string(c_string: *const c_char) {
+pub extern "C" fn rust_string(c_string: *const c_char) {
     // build a Rust string from C string
-    let s = unsafe { CStr::from_ptr(c_string).to_string_lossy().into_owned() };
-
+    // let s = unsafe { CStr::from_ptr(c_string).to_string_lossy().into_owned() };
+    let s = unsafe { CStr::from_ptr(c_string).to_string_lossy() };
     println!("'rust_string'() is called, value passed = <{:?}>", s);
 }
 
 // for C arrays, need to pass array size
 #[no_mangle]
-pub extern "C"
-fn rust_int_array(c_array: *const i32, length: usize) {
+pub extern "C" fn rust_int_array(c_array: *const i32, length: i32) {
     // build a Rust array from array & length
     let rust_array: &[i32] = unsafe { slice::from_raw_parts(c_array, length as usize) };
     println!(
@@ -68,8 +66,7 @@ fn rust_int_array(c_array: *const i32, length: usize) {
 }
 
 #[no_mangle]
-pub extern "C"
-fn rust_string_array(c_array: *const *const c_char, length: usize) {
+pub extern "C" fn rust_string_array(c_array: *const *const c_char, length: i32) {
     // build a Rust array from array & length
     let tmp_array: &[*const c_char] = unsafe { slice::from_raw_parts(c_array, length as usize) };
 
@@ -87,8 +84,7 @@ fn rust_string_array(c_array: *const *const c_char, length: usize) {
 
 // for C structs, need to convert each individual Rust member if necessary
 #[no_mangle]
-pub unsafe extern "C"
-fn rust_cstruct(c_struct: *mut RustStruct) {
+pub unsafe extern "C" fn rust_cstruct(c_struct: *mut RustStruct) {
     let rust_struct = &*c_struct;
     let s = CStr::from_ptr(rust_struct.c_string)
         .to_string_lossy()

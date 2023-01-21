@@ -1,18 +1,27 @@
-# Testowy program linkujący bibliotekę Rust do programu pisanego w C++
+# Test program linking Rust library to C++ program
 
-Na podstawie: https://dev.to/dandyvica/how-to-call-rust-functions-from-c-on-linux-h37
+Based on:
+https://dev.to/dandyvica/how-to-call-rust-functions-from-c-on-linux-h37
 
-## Budowanie
+## How to build
 
-### Linux
+Assuming that `g++, make, cargo` are installed:
 
 ```sh
 make
 ```
 
-### MSys2 - CLang64
+## Run test program
 
-`C:\msys64\clang64.exe`:
+```sh
+make run
+```
+
+### MSys2 - installing Rust in CLang64
+
+We are using CLang64 because cargo/rust are not available for plain MSys.
+
+In the console: `C:\msys64\clang64.exe`:
 
 ```sh
 pacman -Ss cargo
@@ -21,16 +30,8 @@ cargo -V
 # cargo 1.65.0
 ```
 
-Uruchom `C:\msys64\clang64.exe`, nie `msys2` bo `cargo` jest zainstalowane pod `C:\msys64\clang64\bin`
-
-## Test symboli
+## List the symbols
 
 ```sh
-LD_LIBRARY_PATH=target/debug ldd call_rust
-```
-
-## Uruchomienie
-
-```sh
-make run
+LD_LIBRARY_PATH=target/debug ldd ./target/cppcaller
 ```
